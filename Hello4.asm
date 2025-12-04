@@ -4,7 +4,7 @@ jmp InicioDoJogo   ; primeira instrução do programa
 
 SnakePos:  	var #500 ; tamanho MAXIMO da snake
 SnakeSize:	var #1
-Dir:		var #1 ; 0-right, 1-down, 2-left, 3-up
+Dir:		var #1 ; 0-direita, 1-baixo, 2-esquerda, 3-cima
 
 FoodPos:	var #1
 FoodStatus:	var #1
@@ -135,7 +135,7 @@ inicialize_stage_number:
 
 inicialize_speed:
 	
-	loadn r0, #20000  ; altera a velocidade
+	loadn r0, #30000  ; altera a velocidade
 	store Speed, r0
 		 
 	rts
@@ -401,10 +401,10 @@ Move_Snake:
 	push r4
 	
 	; Sincronização
-	loadn 	r0, #5000
-	loadn 	r1, #0
-	mod 	r0, r6, r0		; r1 = r0 % r1 (Teste condições de contorno)
-	cmp 	r0, r1
+	loadn r1, #5000    ; divisor
+	mod r0, r6, r1     ; r0 = r6 % 5000
+	loadn r2, #0
+	cmp r0, r2
 	jne Move_End
 	; =============
 	
