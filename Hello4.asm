@@ -1,7 +1,7 @@
 ; ZONA DA COBRA 
 ; ISABELA XAVIER AURELIANO NUSP 16873946
-; JUAN                     NUSP
-;REBECA                    NUSP
+; JUAN JACOMASSI           NUSP
+;REBECA DE OLIVEIRA        NUSP
 
 
 SnakePos:  	var #500 ; tamanho MAXIMO da cobra -> Array para posições da cobra
@@ -63,7 +63,7 @@ tela_de_inicio_original:
 	loadn R2, #3328
 	call Desenha_Fase
 
-tela_de_inicio_botao:
+tela_de_inicio_botao:           ; Espera que o usuário clique em espaço para iniciar o jogo
 	inchar 	r3
 	loadn 	r4, #' '	
 	cmp r3, r4
@@ -74,10 +74,10 @@ tela_de_inicio_botao:
 ; Main
 main:
 	
-	; inicializando o jogo, chamando as subrotinas e carregando a tela inicial
-	call Inicia_Velocidade ; velocidade = 600
+	; inicializa o jogo, chamando as subrotinas e carregando a tela inicial
+	call Inicia_Velocidade ; Velocidade: 6000
 	call Inicia_flag_e_tiro ; estado do tiro = 0 ou 1; posicao do tiro (atual e anterior)
-	call Inicia
+	call Inicia             ; inicia a cobra
 
 	; subrotina completa para desenhar uma fase
 	loadn R1, #tela1Linha0	; Endereco da primeira linha do ambiente do jogo
@@ -86,22 +86,22 @@ main:
 
 
 	call Inicia_Pontuacao	; inicia o placar
-	call Inicia_Fase_numero	; inicia o numero da fase
+	call Inicia_Fase_numero	; inicia a fase
 	
 	loop:
 		
 		ingame_loop:
-			call Draw_Snake
+			call Draw_Snake    ; desenha a cobra
 			
 			call Fase_colisoes ; verifica colisões 
 			
-			call Move_Snake
-			call Replace_Food
+			call Move_Snake    ; movimenta a cobra
+			call Replace_Food  ; printar a comida
 					
-			call Delay
+			call Delay         ; controla a velocidade
 				
 				
-			jmp ingame_loop
+			jmp ingame_loop    
 		GameOver_loop:
 			call tela_final_perdeu
 			call Restart_Game
@@ -118,7 +118,7 @@ main:
 	
 ; Funções
 
-Fase_colisoes:
+Fase_colisoes:      ; decidir qual verificação de morte vai rodar dependendo da fase atual do jogo
 	
 	load r3, Fase
 	loadn r4, #48 ; r4 = 0
@@ -134,7 +134,7 @@ Fase_colisoes:
 	
 	inc r4 ; r4 = 2
 	
-	cmp r3, r6 ; MUDANCA DO GPT AQUIIIIIIIIIIIIIIIIIIII r3, r6
+	cmp r3, r6 
 	jeq Fase3
 
 	inc r4 ; r4 = 3
@@ -153,24 +153,19 @@ Fase_colisoes:
 	Fase3:
 	call Morte_Snake_3
 	call Torre
-	;jmp fim ; MUDANCA DO GPT AQUIIIIIIIIIIIIIIIIIIII
-
-	;Fase4:
-	;call Morte_Snake_4
-	;jmp fim
 	
 	fim:
 	rts	
 
 Inicia_Pontuacao:
 	
-	loadn r0, #48 ; inicializa a pontuação com zer
+	loadn r0, #48 ; inicializa a pontuação com zero
 	store Pontuacao, r0 ; carrega a pontação no Pontuacao
 	
 	loadn r1, #9 ; posição da pontuação na tela
 	load r2, Pontuacao  
 	
-	outchar r2, r1 ; MUDAR A COOOOOOOOOOR
+	outchar r2, r1 
 	 
 	rts
 	
@@ -256,7 +251,7 @@ FirstPrintSnake:
 	push r0
 	push r1
 	push r2
-	push r3					; CASO DE TEMPO, MUDE O CORPO DA CABEÇA
+	push r3					
 	
 	loadn r0, #SnakePos		; r0 = endereço do array da cobra
 	loadn r1, #'='			; caractere da cobra
@@ -265,7 +260,7 @@ FirstPrintSnake:
 	loadn 	r3, #0			; r3 = 0
 	
 	Print_Loop:
-		outchar r1, r2      ; imprime '%' na posição r2 (posição da cobra)
+		outchar r1, r2      ; imprime '=' na posição r2 (posição da cobra)
 		
 		inc 	r0
 		loadi 	r2, r0
@@ -317,7 +312,7 @@ EraseSnake:
 
 
 
-Desenha_Fase: ; desenha a fase 30 linhas por 40 colunas (1200 posições)
+Desenha_Fase: ; desenha a fase 30 linhas por 40 colunas 
 	
 	push r0	
 	push r1	
@@ -387,7 +382,7 @@ Move_Snake:
 	push r4
 	
 	; Sincronização
-	loadn 	r0, #15000 ; MUDOU A VELOCIDADE NO PC DA PRO ALUNO !!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	loadn 	r0, #15000 
 	loadn 	r1, #0
 	mod 	r0, r6, r0		; r0 = r6 % 10000 
 	cmp 	r0, r1
@@ -656,7 +651,7 @@ MoveTiro_Apaga: ; move o tiro e apaga o rastro dele
 ;--------------------------------------------------------------------------------------------------------
 	
 	
-MoveTiro_RecalculaPos:
+MoveTiro_RecalculaPos:     ; Verifica borda, colisão com cobra, apaga tiro antigo
 	push R0
 	push R1
 	push R2
@@ -700,7 +695,7 @@ MoveTiro_RecalculaPos:
   
 
   
-MoveTiro_Desenha:
+MoveTiro_Desenha:      ; Mostra o tiro na tela
 	push R0
 	push R1
 	
@@ -714,7 +709,7 @@ MoveTiro_Desenha:
 	rts
 
 
-Shot_snake:
+Shot_snake:          ; Verifica se o tiro atingiu qualquer parte do corpo da cobra
 
 	push r0
 	push r1
@@ -753,7 +748,7 @@ Shot_snake:
 	pop r0
 
 	rts
-
+; ######################################################################################################################################################################################### PESSOA 1 ATÉ AQUI
 	
 
 Increment_Pontuacao:
@@ -773,7 +768,7 @@ Increment_Pontuacao:
 	outchar r0, r2
 	
 	loadn r3, #49
-	cmp r0, r3	;checa se o Pontuacao chegou a 7 (55 em ASCII)
+	cmp r0, r3	
 	jeq NextLevel
 	
 	
@@ -783,9 +778,9 @@ Increment_Pontuacao:
 	 
 	rts
 
-Replace_Food:
-	push r0
-	push r1
+Replace_Food:        ; reposiciona a comida quando necessário --> FoodStatus = -1
+	push r0          ; Calcula a nova posição baseada na direção da cobra
+	push r1          ; Verifica se a posição é válida
 
 	loadn 	r0, #0
 	dec 	r0
@@ -1287,7 +1282,7 @@ Morte_Snake_3: ; função para a fase 3
 	Morte_Snake_3_End:
 	
 	rts
-
+; ################################################################################################################################################################################# PESSOA 2 ATÉ AQUI
 
 box_1_check: ; checa se a snake colidiu com uma das caixas do cenario 1. 
 	
@@ -1591,8 +1586,8 @@ Set_cenario2:				; Função que coloca a posição inicial do cenario 2 em r1
 Set_cenario3:				; Função que coloca a posição inicial do cenario 3 em r1
 	loadn r1, #tela3Linha0
 	rts
-;--------------------------------------------------------------------------------------------------------
-Delay:
+
+Delay:                      ; Controla a velocidade da cobra
 	push r0
 	
 	inc r6
