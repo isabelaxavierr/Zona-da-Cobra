@@ -9,7 +9,6 @@
 O jogador controla uma cobra que cresce ao comer alimentos, devendo evitar colisões com:
 - paredes  
 - obstáculos do cenário  
-- seu próprio corpo  
 - **e, na fase 3, tiros disparados por uma torreta inimiga**
 
 O jogo possui **três níveis**, cada um mais desafiador que o anterior.
@@ -69,13 +68,3 @@ Para executar o jogo, você precisará:
   - o próprio corpo  
   - **tiros da torreta (fase 3)**  
 - Atingir a pontuação necessária para avançar de fase
-
----
-
-## 📂 **Arquivos do Projeto**
-
-
----
-
-## 📂 **Processador**
-
