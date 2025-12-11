@@ -747,9 +747,7 @@ Shot_snake:          ; Verifica se o tiro atingiu qualquer parte do corpo da cob
 	pop r1
 	pop r0
 
-	rts
-; ######################################################################################################################################################################################### PESSOA 1 ATÉ AQUI
-	
+	rts	
 
 Increment_Pontuacao:
 	push r0
@@ -1511,7 +1509,7 @@ Draw_Snake:
 	push r5
 	push r6
 	
-	; --> R2 = Tela1Linha0 + posAnt + posAnt/40  ; tem que somar posAnt/40 no ponteiro pois as linas da string terminam com /0 !!
+	; --> R2 = Tela1Linha0 + posAnt + posAnt/40  ; tem que somar posAnt/40 no ponteiro pois as linhas da string terminam com /0 !!
 	loadn R1, #tela0Linha0	; Endereco onde comeca a primeira linha do cenario!!
 	add R2, R1, r0	; R2 = Tela1Linha0 + posAnt
 	loadn R4, #40
@@ -1534,15 +1532,13 @@ Draw_Snake:
 	outchar r1, r0
 	
 	loadn 	r0, #SnakePos	; r0 = & SnakePos
-	loadn 	r1, #'='		; r1 = '}'
+	loadn 	r1, #'='		; r1 = '='
 	loadi 	r2, r0			; r2 = SnakePos[0]
 	outchar r1, r2			
 	
 	loadn 	r0, #SnakePos	; r0 = & SnakePos
 	
 	
-	
-	;loadn 	r1, #' '		; r1 = ' '
 	load 	r3, SnakeTam	; r3 = SnakeTam
 	add 	r0, r0, r3		; r0 += SnakeTam
 	loadi 	r2, r0			; r2 = SnakePos[SnakeTam]
@@ -1621,12 +1617,12 @@ Delay2: ; Delay para desenhar o cenário sem bugar
 	
 	rts
 
-Shot_Delay: 
+Shot_Delay:                ; intervalos do tiro
 	push r0
 	push r1
 	
 	loadn r1, #5  ; a
-   Delay_volta2:				;Quebrou o contador acima em duas partes (dois loops de decremento)
+   Delay_volta2:				
 	loadn r0, #4000	; b
    Delay_volta: 
 	dec r0					; (4*a + 6)b = 1000000  == 1 seg  em um clock de 1MHz
@@ -1640,7 +1636,7 @@ Shot_Delay:
 	rts
 
 
-NextLevel:
+NextLevel:                       ; Mostra mensagem que passou p proximo nivel, esperar o jogador clicar espaço, limpar essas mensagens, verificar se é o último nível, preparar o prox cenário, voltar p loop principal
 	
 	push r0
 	push r1
