@@ -751,30 +751,30 @@ Shot_snake:          ; Verifica se o tiro atingiu qualquer parte do corpo da cob
 ; ######################################################################################################################################################################################### PESSOA 1 ATÉ AQUI
 	
 
-Increment_Pontuacao:
+Increment_Pontuacao: ; somar 1 ao valor atual da pontuação (Pontuacao), desenhar/mostrar o novo valor e testar se atingiu valor para avançar de fase (NextLevel)
 	push r0
 	push r1
-	push r2
+	push r2 ; push r0, r1, r1 = salva r0,r1,r2 na pilha para não sobrescrever estado do chamador
 	
 	loadn r1, #1 ; colocando numero 1 no registrador r1 para somar com a pontuação atual
 	
 	load r0 , Pontuacao ; carregando pontuação atual em r0 
-	add r0, r0 , r1
+	add r0, r0 , r1 ; r0 = r0 + 1.
 
-	store Pontuacao, r0
+	store Pontuacao, r0 ; grava a nova pontuação de volta na variável.
 	
-	loadn r2, #9
+	loadn r2, #9 ; carrega 9 em r2 (posição/offset do cursor onde se imprime a pontuação)
 	
-	outchar r0, r2
+	outchar r0, r2 ; mostra o valor da pontuação na posição r2
 	
-	loadn r3, #49
-	cmp r0, r3	
+	loadn r3, #49 ; carrega 49 (código ASCII de '1' é 49)
+	cmp r0, r3	; se r0 == 49, vai para NextLevel
 	jeq NextLevel
 	
 	
 	pop r2	
 	pop r1	
-	pop r0	
+	pop r0	; pop r2, r1, r0 restaura registradores
 	 
 	rts
 
@@ -782,19 +782,30 @@ Replace_Food:        ; reposiciona a comida quando necessário --> FoodStatus = 
 	push r0          ; Calcula a nova posição baseada na direção da cobra
 	push r1          ; Verifica se a posição é válida
 
-	loadn 	r0, #0
+	loadn 	r0, #0 ; checagem de FoodStatus
 	dec 	r0
 	load 	r1, FoodStatus
 	cmp 	r0, r1
 	
-	jne Replace_End
-	
-	loadn r1, #0
+	jne Replace_End ; se FoodStatus != -1, pula para o fim (não reposiciona)
+
+	; inicia reposição
+	loadn r1, #0 ; define FoodStatus = 0 (marcando comida agora disponível)
 	store FoodStatus, r1
-	load  r1, FoodPos
+	load  r1, FoodPos  ; recebe a posição base
 	
-	load r0, Direcao
-	
+	load r0, Direcao ; direção atual da cobra
+	; compara r0 com 0/1/2/3 e vai para Replace_Right, Replace_Down, Replace_Left, Replace_Up
+	; cada etiqueta ajusta r1 (a posição) adicionando/subtraindo um offset constante:
+	; right: add r1, r1, #355
+	; down: sub r1, r1, #445
+	; left: sub r1, r1, #395
+	; up: add r1, r1, #485
+	; depois vai para Replace_Boundaries
+
+	; interpretação: o jogo usa posições codificadas como índices (um único número representando linha/coluna). Esses offsets deslocam a posição inicial para uma posição adjacente ou para alguma posição calculada; os números (355, 445...) são “mágicos” ajustados à representação da tela/memória.
+
+	; checagem de fronteiras (obstáculos)
 	loadn r2, #0
 	cmp r0, r2
 	jeq Replace_Right
@@ -1079,23 +1090,26 @@ Replace_Food:        ; reposiciona a comida quando necessário --> FoodStatus = 
 		Replace_West:
 			loadn r1, #205
 			jmp Replace_Update
-			
+
+		; atualiza posição da comida
 		Replace_Update:
 			store FoodPos, r1
 			loadn r0, #'.'
 			outchar r0, r1
 	
-	Replace_End:
+	Replace_End: ; restaura registradores salvos
 		pop r1
 		pop r0
 	
 	rts
 
+; Objetivo geral: para cada fase (1, 2, 3) verificar se a cabeça da cobra colidiu com parede, com obstáculos específicos da fase, ou com seu próprio corpo. Se colidir, ativar o GameOver_loop.
+
 Morte_Snake_1: ; função para a fase 1
-	loadn r0, #SnakePos
-	loadi r1, r0
+	loadn r0, #SnakePos ; endereço onde está armazenada a posição da cabeça
+	loadi r1, r0 ; carrega a posição da cabeça em r1
 	
-	; colidiu na parede Direita
+	; colidiu na parede direita
 	loadn r2, #40
 	loadn r3, #39
 	mod r2, r1, r2		; r2 = r1 % r2 (Teste condições de contorno)
@@ -1111,27 +1125,28 @@ Morte_Snake_1: ; função para a fase 1
 	
 	; colidiu na parede de cima
 	loadn r2, #160
-	cmp r1, r2
+	cmp r1, r2 ; cmp r1, #160 / se posição <= 160 (topo/linha superior), game over.
 	jle GameOver_Activate
 	
 	; colidiu na parede de baixo
-	loadn r2, #1160
-	cmp r1, r2
+	loadn r2, #1160 
+	cmp r1, r2 ; se posição > 1160 (embaixo), game over.
 	jgr GameOver_Activate
-	
+
+	; Esses call são sub-rotinas que  verificam se r1 (a posição da cabeça) coincide com alguma parede/obstáculo da fase. Se bater, espera-se que essas rotinas façam GameOver_Activate ou retornem sem acionar.
 	call wall_1_check
 	call wall_2_check
 	
 	; colidiu na própria cobra
 	Collision_Check:
-		load 	r2, SnakeTam
-		loadn 	r3, #1
-		loadi 	r4, r0			
+		load 	r2, SnakeTam ; tamanho da cobra
+		loadn 	r3, #1 ; limite inferior
+		loadi 	r4, r0 ; posição da cabeça	
 		
 		Collision_Loop:
 			inc 	r0
-			loadi 	r1, r0
-			cmp r1, r4
+			loadi 	r1, r0 ; carrega a posição de um segmento do corpo
+			cmp r1, r4 ; se igual à cabeça, jeq GameOver_Activate (auto-colisão)
 			jeq GameOver_Activate
 			
 			dec r2
